@@ -16,6 +16,7 @@ import {
   isHeadless,
   itemAmount,
   myInebriety,
+  myPath,
   myStorageMeat,
   print,
   putCloset,
@@ -34,29 +35,34 @@ import {
   useSkill,
 } from "kolmafia";
 import {
+  $class,
   $effect,
   $familiar,
   $item,
   $items,
   $location,
+  $path,
   $skill,
+  ascend,
   AsdonMartin,
   Clan,
   get,
   have,
+  Lifestyle,
   Macro,
+  prepareAscension,
   SongBoom,
 } from "libram";
 
-import { bafhWls, breakfastCounter, mannyQuestVolcoino, setChoice } from "./lib";
+import { bafhWls, breakfastCounter, mannyQuestVolcoino, playerTargets, setChoice } from "./lib";
 
-const mafiaBreakfast: Task = {
+export const mafiaBreakfast: Task = {
   name: "Mafia Breakfast",
   completed: () => get("breakfastCompleted"),
   do: () => cliExecute("breakfast"),
 };
 
-const buyRaffleTix: Task = {
+export const buyRaffleTix: Task = {
   name: "Raffle tix",
   completed: () => itemAmount($item`raffle ticket`) > 0,
   do: (): void => {
@@ -64,46 +70,46 @@ const buyRaffleTix: Task = {
   },
 };
 
-const joinAFH: Task = {
+export const joinAFH: Task = {
   name: "Join AFH",
   completed: () => Clan.get().id === 40382,
   do: () => Clan.join(40382),
 };
 
-const aprilShower: Task = {
+export const aprilShower: Task = {
   name: "April Shower",
   completed: () => get("_aprilShower"),
   do: () => cliExecute("shower cold"),
 };
 
-const detectiveSolver: Task = {
+export const detectiveSolver: Task = {
   name: "Detective Solver",
   completed: () => get("_detectiveCasesCompleted") === 3,
   do: () => cliExecute("detective solver"),
 };
 
-// TODO: have this only get the coin if it's fused fuse, let garbo handle it otherwise
-const questCoino: Task = {
+// TODO: probably put the whole function in here, instead of in lib
+export const questCoino: Task = {
   name: "Quest Volcoino",
   completed: () => get("_volcanoItemRedeemed"),
   do: mannyQuestVolcoino,
   limit: { tries: 1 },
 };
 
-const bafh: Task = {
+export const bafh: Task = {
   name: "BAFH WLs",
   completed: () => get("_bafhWlsDone", false),
   do: bafhWls,
 };
 
-const muffinHandler: Task = {
+export const muffinHandler: Task = {
   name: "Muffin Handler",
   completed: () => get("muffinOnOrder") === "none",
   ready: () => get("muffinOnOrder") === "blueberry",
   do: breakfastCounter,
 };
 
-const checkNEP: Task = {
+export const checkNEP: Task = {
   name: "Check NEP Quest",
   completed: () => get("_questPartyFairQuest") !== "",
   ready: () => !get("_questPartyFairQuest"),
@@ -120,7 +126,7 @@ const checkNEP: Task = {
 
 const stockables = $items`11-leaf clover, battery (AAA), cornucopia, pocket wish, cute mushroom, gift card, abandoned candy`;
 
-const stockShop: Task = {
+export const stockShop: Task = {
   name: "Stock Mallstore",
   completed: () => {
     for (const item of stockables) {
@@ -138,7 +144,7 @@ const stockShop: Task = {
 };
 
 // TODO: Make full vs half loop an argument that sets a global option
-const workshedSwap: Task = {
+export const workshedSwap: Task = {
   name: "Workshed Swap",
   completed: () => {
     if (get("_workshedItemUsed") || get("csServicesPerformed")) return true;
@@ -163,7 +169,7 @@ const workshedSwap: Task = {
   },
 };
 
-const makeKeyPie: Task = {
+export const makeKeyPie: Task = {
   name: "Make a key pie",
   ready: () => !get("lockPicked"),
   completed: () => get("lockPicked"),
@@ -174,7 +180,7 @@ const makeKeyPie: Task = {
   },
 };
 
-const melfDupe: Task = {
+export const melfDupe: Task = {
   name: "Machine Elf Dupe",
   ready: () => get("encountersUntilDMTChoice") === 0,
   completed: () => get("encountersUntilDMTChoice") > 0,
@@ -194,7 +200,7 @@ const melfDupe: Task = {
   },
 };
 
-const doggieCoin: Task = {
+export const doggieCoin: Task = {
   name: "Caldera Volcoino",
   ready: () => !containsText($location`The Bubblin' Caldera`.noncombatQueue, "Lava Dogs"),
   completed: () => containsText($location`The Bubblin' Caldera`.noncombatQueue, "Lava Dogs"),
@@ -222,13 +228,14 @@ const doggieCoin: Task = {
   },
 };
 
-const emptyHagnks: Task = {
+export const emptyHagnks: Task = {
   name: "Empty Hagnk's",
   completed: () => myStorageMeat() === 0 && storageAmount($item`Ol' Scratch's stovepipe hat`) === 0,
   do: () => cliExecute("pull all"),
 };
 
-const defaultPrefs: Task = {
+// TODO: grimoire-ify the prefs
+export const defaultPrefs: Task = {
   name: "Set default prefs",
   completed: () =>
     get("autoSatisfyWithNPCs") === true &&
@@ -248,7 +255,7 @@ const defaultPrefs: Task = {
   },
 };
 
-const overdrink: Task = {
+export const overdrink: Task = {
   name: "Overdrink (not nightcap)",
   completed: () => myInebriety() > inebrietyLimit(),
   do: () => {
@@ -262,7 +269,7 @@ const overdrink: Task = {
   },
 };
 
-const nightcap: Task = {
+export const nightcap: Task = {
   name: "Nightcap",
   completed: () => myInebriety() > inebrietyLimit(),
   do: () => {
@@ -276,14 +283,63 @@ const nightcap: Task = {
   },
 };
 
-const genericPvp: Task = {
+export const randomSafari: Task = {
+  name: "Random Safari casts",
+  completed: () => $skill`Experience Safari`.timescast >= get("skillLevel180"),
+  do: () =>
+    useSkill(
+      $skill`Experience Safari`,
+      1,
+      playerTargets[Math.round(Math.random() * playerTargets.length)]
+    ),
+  limit: { tries: 10 },
+};
+
+export const randomPrank: Task = {
+  name: "Random timepranks",
+  completed: () => get("_timeSpinnerMinutesUsed") >= 10,
+  do: () =>
+    cliExecute(
+      `timespinner prank ${playerTargets[Math.round(Math.random() * playerTargets.length)]}`
+    ),
+  limit: { tries: 15 },
+};
+
+export const genericPvp: Task = {
   name: "pvp",
   completed: () => pvpAttacksLeft() === 0,
   do: () => cliExecute("UberPVPOptimizer; swagger"),
 };
 
-const seasonalPvp: Task = {
+export const seasonalPvp: Task = {
   name: "pvp",
   completed: () => pvpAttacksLeft() === 0,
   do: () => cliExecute("UberPVPOptimizer; pvp loot ASCII"),
+};
+
+export const csGashHop: Task = {
+  name: "Hop into CS",
+  completed: () => get("csServicesPerformed") !== "" || myPath() === $path`community service`,
+  do: () => {
+    prepareAscension({
+      workshed: "Asdon Martin keyfob",
+      garden: "Peppermint Pip Packet",
+      eudora: "Our Daily Candles™ order form",
+
+      chateau: {
+        desk: "Swiss piggy bank",
+        nightstand: "foreign language tapes",
+        ceiling: "ceiling fan",
+      },
+    });
+
+    ascend(
+      $path`Community Service`,
+      $class`pastamancer`,
+      Lifestyle.hardcore,
+      "wallaby",
+      $item`astral six-pack`,
+      $item`astral statuette`
+    );
+  },
 };
