@@ -113,6 +113,10 @@ export const checkNEP: Task = {
   name: "Check NEP Quest",
   completed: () => get("_questPartyFairQuest") !== "",
   ready: () => !get("_questPartyFairQuest"),
+  outfit: {
+    avoid: [$item`Kramco Sausage-o-Matic™`, $item`June cleaver`],
+    familiar: $familiar`Frumious Bandersnatch`,
+  },
   do: () => {
     setChoice(1322, 6); // Leave
     adv1($location`The Neverending Party`, -1, "");
@@ -255,7 +259,7 @@ export const defaultPrefs: Task = {
   },
 };
 
-export const overdrink: Task = {
+export const getDrunk: Task = {
   name: "Overdrink (not nightcap)",
   completed: () => myInebriety() > inebrietyLimit(),
   do: () => {
@@ -319,7 +323,7 @@ export const seasonalPvp: Task = {
 
 export const csGashHop: Task = {
   name: "Hop into CS",
-  completed: () => get("csServicesPerformed") !== "" || myPath() === $path`community service`,
+  completed: () => get("csServicesPerformed") !== "" || myPath() === $path`Community Service`,
   do: () => {
     prepareAscension({
       workshed: "Asdon Martin keyfob",
@@ -335,7 +339,7 @@ export const csGashHop: Task = {
 
     ascend(
       $path`Community Service`,
-      $class`pastamancer`,
+      $class`Pastamancer`,
       Lifestyle.hardcore,
       "wallaby",
       $item`astral six-pack`,
