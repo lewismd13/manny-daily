@@ -1,4 +1,5 @@
 import { Quest, Task } from "grimoire-kolmafia";
+import { myDaycount } from "kolmafia";
 import { get } from "libram";
 
 import {
@@ -6,22 +7,25 @@ import {
   bafh,
   buyRaffleTix,
   checkNEP,
+  csGashHop,
   defaultPrefs,
   detectiveSolver,
   doggieCoin,
   emptyHagnks,
+  getDrunk,
   joinAFH,
   mafiaBreakfast,
   makeKeyPie,
   melfDupe,
   muffinHandler,
   questCoino,
+  seasonalPvp,
   stockShop,
 } from "./tasks";
 
-export const mannyBreakfast: Quest<Task> = {
-  name: "Full Breakfast",
-  completed: () => get("_aprilShower"), // not sure about this
+export const firstLife: Quest<Task> = {
+  name: "First lifetime",
+  completed: () => myDaycount() === 1,
   tasks: [
     joinAFH,
     mafiaBreakfast,
@@ -33,6 +37,13 @@ export const mannyBreakfast: Quest<Task> = {
     checkNEP,
     stockShop,
     aprilShower,
+    // duffo
+    // garbo
+    // baggo if running
+    getDrunk,
+    // garbo/baggo,
+    seasonalPvp,
+    csGashHop,
   ],
 };
 
