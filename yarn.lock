@@ -1876,10 +1876,10 @@ eslint-config-prettier@^8.5.0:
   resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-8.5.0.tgz#5a81680ec934beca02c7b1a61cf8ca34b66feab1"
   integrity sha512-obmWKLUNCnhtQRKc+tmnYuQl0pFU1ibYJQ5BGhTVB08bHe9wC8qUeG7c08dj9XX+AuPj1YSGSQIHl1pnDHZR0Q==
 
-eslint-plugin-libram@^0.2.13:
-  version "0.2.17"
-  resolved "https://registry.npmjs.org/eslint-plugin-libram/-/eslint-plugin-libram-0.2.17.tgz"
-  integrity sha512-WUDz3af4O5KGxWkm+6mrsqRiDoiu2F1kq5DWyPVMQI+RsifoVZATIJ6785i3rlhCGVSu9X1/NbpOiSrecjv8kg==
+eslint-plugin-libram@^0.2.28:
+  version "0.2.28"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-libram/-/eslint-plugin-libram-0.2.28.tgz#605433db803bdfc535ea75d17ae9e24ab32b775f"
+  integrity sha512-4QLnCDov2XMz3Vxvi2nYkVagv/QtavRcB0xw3Ww6Kdt+yrCR5dq2HtILHyRR8nP46ZE72OPMlSjtuzOA55yflw==
   dependencies:
     html-entities "^2.3.2"
     requireindex "~1.1.0"
@@ -2261,10 +2261,10 @@ grapheme-splitter@^1.0.4:
   resolved "https://registry.npmjs.org/grapheme-splitter/-/grapheme-splitter-1.0.4.tgz"
   integrity sha512-bzh50DW9kTPM00T8y4o8vQg89Di9oLJVLW/KaOGIXJWP/iqCN6WKYkbNOF04vFLJhwcpYUh9ydh/+5vpOqV4YQ==
 
-grimoire-kolmafia@^0.3.8:
-  version "0.3.8"
-  resolved "https://registry.yarnpkg.com/grimoire-kolmafia/-/grimoire-kolmafia-0.3.8.tgz#7711c23ff1b1906d33b4ec3a544f699562a65c59"
-  integrity sha512-zApbZGEYl49ePQu3kViprAV6qZaqUk3e8+gvY8yF4ZaH26I6iXmRIQEEKE7hVxwjg5hI2Q4oXGKMfXKlnoU8xA==
+grimoire-kolmafia@^0.3.13:
+  version "0.3.13"
+  resolved "https://registry.yarnpkg.com/grimoire-kolmafia/-/grimoire-kolmafia-0.3.13.tgz#4c94155d85ef5b6cbce1304093bd684df8c78d8f"
+  integrity sha512-Fn+WtFnoHwaUSLRqQTP+LClSdaYqcYn8QF7oNvFGEl0qwUqMGEDBuhXjdOjWeDQkkXF7HFO13QoNRt1CUofbUQ==
   dependencies:
     core-js "^3.16.4"
 
@@ -2491,10 +2491,10 @@ json5@^2.1.2, json5@^2.2.1:
   resolved "https://registry.npmjs.org/json5/-/json5-2.2.1.tgz"
   integrity sha512-1hqLFMSrGHRHxav9q9gNjJ5EXznIxGVO09xQRrwplcS8qs28pZ8s8hupZAmqDwZUmVZ2Qb2jnyPOWcDH8m8dlA==
 
-kolmafia@latest:
-  version "4.0.1"
-  resolved "https://registry.npmjs.org/kolmafia/-/kolmafia-4.0.1.tgz"
-  integrity sha512-qH/A3ZwSqVADzLfNmFsNe0vyfnuSi/Ql6ZaWaJ6y6eMasBbcieTL0w3d0bSvbQj9Oe00MsmeZeJNOlV863rxNA==
+kolmafia@^5.27194.0:
+  version "5.27194.0"
+  resolved "https://registry.yarnpkg.com/kolmafia/-/kolmafia-5.27194.0.tgz#21aa81095284b4cbbca5464733c17faf9efaf49e"
+  integrity sha512-gAts53RGgdSpB03FwJEBS8nG04E0uWrqGljYGNxWKfUiie6/iuEoerlMBFEsRlHZS3C/8jyUSD3jH0ebs7vI+Q==
 
 levn@^0.4.1:
   version "0.4.1"
@@ -2504,14 +2504,13 @@ levn@^0.4.1:
     prelude-ls "^1.2.1"
     type-check "~0.4.0"
 
-libram@^0.7.4:
-  version "0.7.4"
-  resolved "https://registry.yarnpkg.com/libram/-/libram-0.7.4.tgz#ce3cfb5c52133e161bbf738b490ca576a38e743c"
-  integrity sha512-dLTwHVy9DR8nosCrWNijja7B1RTNIJCktAGscMRGPCvz/1ZSXaLjYrSbO72m4TesjzckBAXlVaEfUFgVyZiLug==
+libram@^0.7.11:
+  version "0.7.11"
+  resolved "https://registry.yarnpkg.com/libram/-/libram-0.7.11.tgz#c215ce008b1d7b79306937efbd3a87edf2c568f4"
+  integrity sha512-x3VGeNV7j4580U/qaGhFUZFF7rpXYgF7/cQz24+jQVm9+az9vKp9xQCu0zJGqzXqg9Qp/KMIJpwh3htd8++skQ==
   dependencies:
     "@babel/runtime-corejs3" "^7.17.2"
     core-js "^3.21.0"
-    lodash "^4.17.21"
 
 license.js@^3.1.2:
   version "3.1.2"
@@ -2550,7 +2549,7 @@ lodash.merge@^4.6.2:
   resolved "https://registry.npmjs.org/lodash.merge/-/lodash.merge-4.6.2.tgz"
   integrity sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==
 
-lodash@4.17.21, lodash@^4.17.19, lodash@^4.17.21:
+lodash@4.17.21, lodash@^4.17.19:
   version "4.17.21"
   resolved "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==

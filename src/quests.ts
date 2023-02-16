@@ -1,31 +1,41 @@
 import { Quest, Task } from "grimoire-kolmafia";
-import { myDaycount } from "kolmafia";
-import { get } from "libram";
+import { inebrietyLimit, myDaycount, myInebriety, myPath } from "kolmafia";
+import { $path, get } from "libram";
 
 import {
   aprilShower,
   bafh,
+  baggo,
+  batfellowFood,
+  breakStone,
   buyRaffleTix,
   checkNEP,
   csGashHop,
   defaultPrefs,
   detectiveSolver,
   doggieCoin,
+  drunkGarbo,
   emptyHagnks,
+  garbo,
+  genericPvp,
   getDrunk,
   joinAFH,
   mafiaBreakfast,
   makeKeyPie,
   melfDupe,
   muffinHandler,
+  nightcap,
   questCoino,
-  seasonalPvp,
+  randomPrank,
+  randomSafari,
+  rolloverPrep,
   stockShop,
+  workshedSwap,
 } from "./tasks";
 
 export const firstLife: Quest<Task> = {
   name: "First lifetime",
-  completed: () => myDaycount() === 1,
+  completed: () => myDaycount() === 1 && myPath() === $path`Community Service`,
   tasks: [
     joinAFH,
     mafiaBreakfast,
@@ -34,19 +44,50 @@ export const firstLife: Quest<Task> = {
     questCoino,
     bafh,
     muffinHandler,
-    checkNEP,
     stockShop,
     aprilShower,
-    // duffo
-    // garbo
-    // baggo if running
+    checkNEP,
+    batfellowFood,
+    ...garbo(true),
+    baggo,
     getDrunk,
-    // garbo/baggo,
-    seasonalPvp,
+    drunkGarbo,
+    genericPvp,
+    randomSafari,
+    randomPrank,
     csGashHop,
   ],
 };
 
+export const secondLife: Quest<Task> = {
+  name: "Post-CS lifetime",
+  completed: () => myDaycount() === 1 && myInebriety() > inebrietyLimit(),
+  tasks: [
+    joinAFH,
+    breakStone,
+    emptyHagnks,
+    defaultPrefs,
+    detectiveSolver,
+    questCoino,
+    melfDupe,
+    makeKeyPie,
+    doggieCoin,
+    mafiaBreakfast,
+    workshedSwap,
+    stockShop,
+    checkNEP,
+    batfellowFood,
+    ...garbo(false),
+    baggo,
+    bafh,
+    randomSafari,
+    randomPrank,
+    nightcap,
+    rolloverPrep,
+  ],
+};
+
+// Currently unused
 export const postloop: Quest<Task> = {
   name: "Postloop",
   completed: () => get("breakfastCompleted"),
@@ -59,7 +100,6 @@ export const postloop: Quest<Task> = {
     melfDupe,
     makeKeyPie,
     doggieCoin,
-    checkNEP,
     mafiaBreakfast,
     stockShop,
     checkNEP,

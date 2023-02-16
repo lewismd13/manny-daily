@@ -7,16 +7,31 @@ import { Task } from "grimoire-kolmafia";
 import {
   adv1,
   availableAmount,
+  buy,
   cliExecute,
   closetAmount,
   containsText,
+  drinksilent,
+  eatsilent,
   equip,
+  equippedItem,
+  eudoraItem,
+  fullnessLimit,
+  getCampground,
   getWorkshed,
+  haveEffect,
+  hippyStoneBroken,
   inebrietyLimit,
-  isHeadless,
   itemAmount,
+  maximize,
+  myAdventures,
+  myDaycount,
+  myFamiliar,
+  myFullness,
+  myGardenType,
   myInebriety,
   myPath,
+  mySpleenUse,
   myStorageMeat,
   print,
   putCloset,
@@ -26,16 +41,17 @@ import {
   retrieveItem,
   setAutoAttack,
   setProperty,
+  spleenLimit,
   storageAmount,
+  sweetSynthesis,
   takeCloset,
   toInt,
   use,
   useFamiliar,
-  userConfirm,
   useSkill,
+  visitUrl,
 } from "kolmafia";
 import {
-  $class,
   $effect,
   $familiar,
   $item,
@@ -43,18 +59,25 @@ import {
   $location,
   $path,
   $skill,
-  ascend,
+  $slot,
   AsdonMartin,
+  ChateauMantegna,
   Clan,
   get,
   have,
-  Lifestyle,
   Macro,
-  prepareAscension,
   SongBoom,
 } from "libram";
 
-import { bafhWls, breakfastCounter, mannyQuestVolcoino, playerTargets, setChoice } from "./lib";
+import {
+  bafhWls,
+  breakfastCounter,
+  cliExecuteThrow,
+  mannyQuestVolcoino,
+  playerTargets,
+  setChoice,
+} from "./lib";
+import { args } from "./main";
 
 export const mafiaBreakfast: Task = {
   name: "Mafia Breakfast",
@@ -91,14 +114,14 @@ export const detectiveSolver: Task = {
 // TODO: probably put the whole function in here, instead of in lib
 export const questCoino: Task = {
   name: "Quest Volcoino",
-  completed: () => get("_volcanoItemRedeemed"),
+  completed: () => get("_volcanoItemRedeemed") || get("_volcanoItem1") !== 8523,
   do: mannyQuestVolcoino,
   limit: { tries: 1 },
 };
 
 export const bafh: Task = {
   name: "BAFH WLs",
-  completed: () => get("_bafhWlsDone", false),
+  completed: () => get("_bafhWlsDone") === "1",
   do: bafhWls,
 };
 
@@ -109,10 +132,11 @@ export const muffinHandler: Task = {
   do: breakfastCounter,
 };
 
+// TODO: Make sure this doesn't try to run if you've already rejected a quest
 export const checkNEP: Task = {
   name: "Check NEP Quest",
   completed: () => get("_questPartyFairQuest") !== "",
-  ready: () => !get("_questPartyFairQuest"),
+  ready: () => get("_questPartyFair") === "unstarted",
   outfit: {
     avoid: [$item`Kramco Sausage-o-Matic™`, $item`June cleaver`],
     familiar: $familiar`Frumious Bandersnatch`,
@@ -125,6 +149,10 @@ export const checkNEP: Task = {
     } else if (get("_questPartyFairQuest") === "booze") {
       print("Hey, go talk to Gerald, get that jarmageddon!", "yellow");
     } else print(`Sorry, your NEP quest is ${get("_questPartyFairQuest")}.`);
+    if (args.duffoAbort) {
+      if (get("_questPartyFairQuest") === "food" || get("_questPartyFairQuest") === "booze")
+        throw "Time to run duffo";
+    }
   },
 };
 
@@ -147,29 +175,13 @@ export const stockShop: Task = {
   },
 };
 
-// TODO: Make full vs half loop an argument that sets a global option
 export const workshedSwap: Task = {
   name: "Workshed Swap",
-  completed: () => {
-    if (get("_workshedItemUsed") || get("csServicesPerformed")) return true;
-    else return false;
-  },
-  ready: () => !get("_workshedItemUsed"),
+  completed: () => get("_workshedItemUsed"),
+  ready: () => myDaycount() === 1 && getWorkshed() === $item`Asdon Martin keyfob`,
   do: () => {
-    if (!get("csServicesPerformed") || isHeadless()) {
-      // headless or in casual aftercore, drive observantly and swap to cmc
-      if (getWorkshed() === $item`Asdon Martin keyfob`) {
-        AsdonMartin.drive($effect`Driving Observantly`, 1100);
-        use($item`cold medicine cabinet`);
-        // use($item`snow machine`);
-      }
-    } else if (!userConfirm("will you be doing a casual today?")) {
-      // in CS aftercore, half-looping, still swap
-      if (getWorkshed() === $item`Asdon Martin keyfob`) {
-        AsdonMartin.drive($effect`Driving Observantly`, 1100);
-        use($item`cold medicine cabinet`);
-      }
-    }
+    AsdonMartin.drive($effect`Driving Observantly`, 1300);
+    use($item`cold medicine cabinet`);
   },
 };
 
@@ -189,7 +201,7 @@ export const melfDupe: Task = {
   ready: () => get("encountersUntilDMTChoice") === 0,
   completed: () => get("encountersUntilDMTChoice") > 0,
   do: () => {
-    const dupeTarget = $item`bottle of Greedy Dog`;
+    const dupeTarget = $item`chocomotive`;
     if (itemAmount(dupeTarget) === 0 && closetAmount(dupeTarget) > 0) takeCloset(1, dupeTarget);
     if (availableAmount(dupeTarget) > 0) {
       useFamiliar($familiar`Machine Elf`);
@@ -277,12 +289,29 @@ export const nightcap: Task = {
   name: "Nightcap",
   completed: () => myInebriety() > inebrietyLimit(),
   do: () => {
-    if (get("familiarSweat") > 210) {
-      useFamiliar($familiar`Stooper`);
-      cliExecute("drink stillsuit distillate");
-      cliExecute("CONSUME NIGHTCAP NOMEAT VALUE 4000");
+    if (myInebriety() === inebrietyLimit() && myFullness() === fullnessLimit()) {
+      if (myFamiliar() !== $familiar`Stooper`) {
+        useFamiliar($familiar`Stooper`);
+        useSkill($skill`The Ode to Booze`, 1);
+        if (availableAmount($item`astral pilsner`) > 0) {
+          drinksilent($item`astral pilsner`);
+        } else if (get("familiarSweat") > 210) {
+          cliExecute("drink stillsuit distillate");
+        } else {
+          drinksilent($item`splendid martini`);
+        }
+      }
+      useSkill($skill`The Ode to Booze`, 1);
+      if (haveEffect($effect`Ode to Booze`) < 5) useSkill($skill`The Ode to Booze`);
+      retrieveItem($item`jar of fermented pickle juice`);
+      drinksilent($item`jar of fermented pickle juice`);
+      while (mySpleenUse() < spleenLimit()) {
+        sweetSynthesis($effect`Synthesis: Greed`);
+      }
+    } else if (myInebriety() > inebrietyLimit() && myFullness() === fullnessLimit()) {
+      print("you're all good in the hood");
     } else {
-      cliExecute("CONSUME NIGHTCAP NOMEAT VALUE 4000");
+      throw "are you sure you want to overdrink? you have some open organ space";
     }
   },
 };
@@ -309,6 +338,12 @@ export const randomPrank: Task = {
   limit: { tries: 15 },
 };
 
+export const breakStone: Task = {
+  name: "Break Hippy Stone",
+  completed: () => hippyStoneBroken(),
+  do: () => visitUrl("peevpee.php?action=smashstone&confirm=on"),
+};
+
 export const genericPvp: Task = {
   name: "pvp",
   completed: () => pvpAttacksLeft() === 0,
@@ -318,32 +353,111 @@ export const genericPvp: Task = {
 export const seasonalPvp: Task = {
   name: "pvp",
   completed: () => pvpAttacksLeft() === 0,
-  do: () => cliExecute("UberPVPOptimizer; pvp loot ASCII"),
+  do: () => cliExecute("UberPVPOptimizer; pvp loot ephemeral"),
 };
 
+// TODO: add arguments for HC/SC
 export const csGashHop: Task = {
   name: "Hop into CS",
   completed: () => get("csServicesPerformed") !== "" || myPath() === $path`Community Service`,
   do: () => {
-    prepareAscension({
-      workshed: "Asdon Martin keyfob",
-      garden: "Peppermint Pip Packet",
-      eudora: "Our Daily Candles™ order form",
+    cliExecuteThrow("hccsAscend");
+  },
+};
 
-      chateau: {
-        desk: "Swiss piggy bank",
-        nightstand: "foreign language tapes",
-        ceiling: "ceiling fan",
-      },
-    });
+export function garbo(ascend: boolean): Task[] {
+  let garboArguments = "";
+  if (ascend) garboArguments = garboArguments.concat(" ascend");
+  if (args.farmtype.includes("baggo")) garboArguments = garboArguments.concat(" nobarf");
+  return [
+    {
+      name: "Garbo",
+      ready: () => myAdventures() > 0 && myInebriety() < inebrietyLimit(),
+      completed: () => myAdventures() === 0 || myInebriety() > inebrietyLimit(),
+      do: () => cliExecuteThrow(`garbo${garboArguments}`),
+    },
+  ];
+}
 
-    ascend(
-      $path`Community Service`,
-      $class`Pastamancer`,
-      Lifestyle.hardcore,
-      "wallaby",
-      $item`astral six-pack`,
-      $item`astral statuette`
+export const drunkGarbo: Task = {
+  name: "Overdrunk Garbo",
+  ready: () => myAdventures() > 0 && myInebriety() > inebrietyLimit(),
+  completed: () => myAdventures() === 0 && myInebriety() > inebrietyLimit(),
+  do: () => cliExecuteThrow(`garbo ascend`),
+};
+
+export const baggo: Task = {
+  name: "Baggo",
+  do: () => cliExecuteThrow(`baggo`),
+  completed: () =>
+    myAdventures() === 0 || myInebriety() > inebrietyLimit() || args.farmtype === "garbo",
+};
+
+export const batfellowFood: Task = {
+  name: "Eat/drink batfellow",
+  completed: () => get("_mrBurnsgerEaten") && get("_docClocksThymeCocktailDrunk"),
+  ready: () => inebrietyLimit() - myInebriety() >= 4 && fullnessLimit() - myFullness() >= 4,
+  do: () => {
+    if (!get("_milkOfMagnesiumUsed")) use($item`milk of magnesium`);
+    if (myInebriety() >= 2) {
+      if (!itemAmount($item`Mr. Burnsger`)) takeCloset($item`Mr. Burnsger`);
+      eatsilent($item`Mr. Burnsger`);
+      if (haveEffect($effect`Ode to Booze`) < 4) useSkill($skill`The Ode to Booze`);
+      if (!itemAmount($item`Doc Clock's thyme cocktail`))
+        takeCloset($item`Doc Clock's thyme cocktail`);
+      drinksilent($item`Doc Clock's thyme cocktail`);
+    } else {
+      if (have($item`blueberry muffin`)) {
+        eatsilent($item`blueberry muffin`);
+        retrieveItem($item`Boris's bread`);
+        eatsilent($item`Boris's bread`);
+      } else {
+        retrieveItem($item`Deep Dish of Legend`);
+        eatsilent($item`Deep Dish of Legend`);
+      }
+      if (!itemAmount($item`Mr. Burnsger`)) takeCloset($item`Mr. Burnsger`);
+      eatsilent($item`Mr. Burnsger`);
+      if (haveEffect($effect`Ode to Booze`) < 4) useSkill($skill`The Ode to Booze`);
+      if (!itemAmount($item`Doc Clock's thyme cocktail`))
+        takeCloset($item`Doc Clock's thyme cocktail`);
+      drinksilent($item`Doc Clock's thyme cocktail`);
+    }
+  },
+};
+
+export const rolloverPrep: Task = {
+  name: "Rollover Prep",
+  completed: () =>
+    myFamiliar() === $familiar`Trick-or-Treating Tot` &&
+    equippedItem($slot`familiar`) === $item`li'l unicorn costume`,
+  do: () => {
+    if (myGardenType() !== "grass") {
+      use(1, $item`packet of tall grass seeds`);
+    }
+
+    if (myGardenType() === "grass") {
+      use($item`Poké-Gro fertilizer`);
+      use($item`packet of thanksgarden seeds`);
+    }
+    if (!have($item`clockwork maid`) && getCampground()["clockwork maid"] !== 1)
+      buy($item`clockwork maid`, 1, 10000);
+
+    if (have($item`clockwork maid`)) {
+      use($item`clockwork maid`);
+    }
+
+    if (ChateauMantegna.getCeiling() !== "artificial skylight")
+      ChateauMantegna.changeCeiling("artificial skylight");
+
+    if (eudoraItem() !== $item`New-You Club Membership Form`)
+      visitUrl(`account.php?actions[]=whichpenpal&whichpenpal=4&action=Update`, true);
+
+    useFamiliar($familiar`Trick-or-Treating Tot`);
+    retrieveItem($item`li'l unicorn costume`);
+    maximize(
+      "adv +equip Spacegate scientist's insignia +equip Sasq™ watch -equip june cleaver",
+      false
     );
+    Clan.join("Alliance from Hobopolis");
   },
 };

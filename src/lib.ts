@@ -148,3 +148,7 @@ export const playerTargets: string[] = [
   "blazex",
   "asmodais",
 ];
+
+export function cliExecuteThrow(command: string) {
+  if (!cliExecute(command)) throw `Failed to execute ${command}`;
+}
