@@ -35,7 +35,7 @@ import {
 
 export const firstLife: Quest<Task> = {
   name: "First lifetime",
-  completed: () => myDaycount() === 1 && myPath() === $path`Community Service`,
+  completed: () => myDaycount() === 1 && myPath() === $path`Community Service`, // this doesn't account for being in second aftercore
   tasks: [
     joinAFH,
     mafiaBreakfast,
