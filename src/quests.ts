@@ -1,6 +1,6 @@
 import { Quest, Task } from "grimoire-kolmafia";
-import { inebrietyLimit, myDaycount, myInebriety } from "kolmafia";
-import { get } from "libram";
+import { inebrietyLimit, myDaycount, myInebriety, myPath } from "kolmafia";
+import { $path, get } from "libram";
 
 import {
   aprilShower,
@@ -63,6 +63,31 @@ export function firstLife(): Quest<Task> {
     ],
   };
 }
+export const firstLife2: Quest<Task> = {
+  name: "First lifetime",
+  completed: () => myDaycount() === 1 && myPath() === $path`Community Service`, // this doesn't account for being in second aftercore
+  tasks: [
+    joinAFH,
+    mafiaBreakfast,
+    buyRaffleTix,
+    detectiveSolver,
+    questCoino,
+    bafh,
+    muffinHandler,
+    stockShop,
+    aprilShower,
+    checkNEP,
+    batfellowFood,
+    ...garbo(true),
+    baggo,
+    getDrunk,
+    drunkGarbo,
+    genericPvp,
+    randomSafari,
+    randomPrank,
+    csGashHop,
+  ],
+};
 
 export function secondLife(): Quest<Task> {
   return {
