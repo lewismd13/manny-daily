@@ -1,0 +1,3 @@
+-muffin handler didn't fire 
+-double-check volcoino quest
+-not re-entrant. re-run with 0 advs in aftercore leg, skipped to end of day stuff

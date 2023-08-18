@@ -1,6 +1,6 @@
 import { Quest, Task } from "grimoire-kolmafia";
-import { inebrietyLimit, myDaycount, myInebriety, myPath } from "kolmafia";
-import { $path, get } from "libram";
+import { inebrietyLimit, myDaycount, myInebriety } from "kolmafia";
+import { get } from "libram";
 
 import {
   aprilShower,
@@ -19,6 +19,7 @@ import {
   garbo,
   genericPvp,
   getDrunk,
+  goToGAP,
   joinAFH,
   mafiaBreakfast,
   makeKeyPie,
@@ -28,64 +29,71 @@ import {
   questCoino,
   randomPrank,
   randomSafari,
+  returnGAP,
   rolloverPrep,
   stockShop,
   workshedSwap,
 } from "./tasks";
 
-export const firstLife: Quest<Task> = {
-  name: "First lifetime",
-  completed: () => myDaycount() === 1 && myPath() === $path`Community Service`,
-  tasks: [
-    joinAFH,
-    mafiaBreakfast,
-    buyRaffleTix,
-    detectiveSolver,
-    questCoino,
-    bafh,
-    muffinHandler,
-    stockShop,
-    aprilShower,
-    checkNEP,
-    batfellowFood,
-    ...garbo(true),
-    baggo,
-    getDrunk,
-    drunkGarbo,
-    genericPvp,
-    randomSafari,
-    randomPrank,
-    csGashHop,
-  ],
-};
+export function firstLife(): Quest<Task> {
+  return {
+    name: "First lifetime",
+    completed: () => get("ascensionsToday") > 0,
+    tasks: [
+      joinAFH,
+      mafiaBreakfast,
+      buyRaffleTix,
+      detectiveSolver,
+      questCoino,
+      bafh,
+      muffinHandler,
+      stockShop,
+      aprilShower,
+      checkNEP,
+      batfellowFood,
+      goToGAP,
+      ...garbo(true),
+      baggo,
+      getDrunk,
+      randomPrank,
+      drunkGarbo,
+      genericPvp,
+      randomSafari,
+      csGashHop,
+    ],
+  };
+}
 
-export const secondLife: Quest<Task> = {
-  name: "Post-CS lifetime",
-  completed: () => myDaycount() === 1 && myInebriety() > inebrietyLimit(),
-  tasks: [
-    joinAFH,
-    breakStone,
-    emptyHagnks,
-    defaultPrefs,
-    detectiveSolver,
-    questCoino,
-    melfDupe,
-    makeKeyPie,
-    doggieCoin,
-    mafiaBreakfast,
-    workshedSwap,
-    stockShop,
-    checkNEP,
-    batfellowFood,
-    ...garbo(false),
-    baggo,
-    bafh,
-    randomSafari,
-    randomPrank,
-    nightcap,
-    rolloverPrep,
-  ],
-};
+export function secondLife(): Quest<Task> {
+  return {
+    name: "Post-CS lifetime",
+    completed: () => myDaycount() === 1 && myInebriety() > inebrietyLimit(),
+    tasks: [
+      joinAFH,
+      breakStone,
+      emptyHagnks,
+      defaultPrefs,
+      detectiveSolver,
+      questCoino,
+      melfDupe,
+      makeKeyPie,
+      doggieCoin,
+      mafiaBreakfast,
+      workshedSwap,
+      stockShop,
+      checkNEP,
+      batfellowFood,
+      ...garbo(false),
+      baggo,
+      bafh,
+      returnGAP,
+      nightcap,
+      randomSafari,
+      randomPrank,
+      rolloverPrep,
+    ],
+  };
+}
 
 // Currently unused
 export const postloop: Quest<Task> = {

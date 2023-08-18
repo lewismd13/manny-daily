@@ -36,15 +36,18 @@ import {
   print,
   putCloset,
   putShop,
+  putStash,
   pvpAttacksLeft,
   random,
   retrieveItem,
   setAutoAttack,
   setProperty,
   spleenLimit,
+  stashAmount,
   storageAmount,
   sweetSynthesis,
   takeCloset,
+  takeStash,
   toInt,
   use,
   useFamiliar,
@@ -142,8 +145,18 @@ export const checkNEP: Task = {
     familiar: $familiar`Frumious Bandersnatch`,
   },
   do: () => {
+    // Check the quest
     setChoice(1322, 6); // Leave
     adv1($location`The Neverending Party`, -1, "");
+    // Accept or reject the quest accordingly
+    if (get("_questPartyFairQuest") === "food" || get("_questPartyFairQuest") === "booze") {
+      setChoice(1322, 1); // accept
+      adv1($location`The Neverending Party`, -1, "");
+    } else {
+      setChoice(1322, 2); // decline
+      adv1($location`The Neverending Party`, -1, "");
+    }
+
     if (get("_questPartyFairQuest") === "food") {
       print("Hey, go talk to Geraldine, time for another sliderpocalypse!", "yellow");
     } else if (get("_questPartyFairQuest") === "booze") {
@@ -331,6 +344,7 @@ export const randomSafari: Task = {
 export const randomPrank: Task = {
   name: "Random timepranks",
   completed: () => get("_timeSpinnerMinutesUsed") >= 10,
+  ready: () => myAdventures() > 0,
   do: () =>
     cliExecute(
       `timespinner prank ${playerTargets[Math.round(Math.random() * playerTargets.length)]}`
@@ -388,7 +402,7 @@ export const drunkGarbo: Task = {
 
 export const baggo: Task = {
   name: "Baggo",
-  do: () => cliExecuteThrow(`baggo`),
+  do: () => cliExecuteThrow(`baggo olfact=balance`),
   completed: () =>
     myAdventures() === 0 || myInebriety() > inebrietyLimit() || args.farmtype === "garbo",
 };
@@ -459,5 +473,26 @@ export const rolloverPrep: Task = {
       false
     );
     Clan.join("Alliance from Hobopolis");
+  },
+};
+
+export const goToGAP: Task = {
+  name: "Get GAP",
+  completed: () =>
+    itemAmount($item`Greatest American Pants`) > 0 ||
+    (Clan.get().id === 40382 && !stashAmount($item`Greatest American Pants`)),
+  ready: () => myAdventures() > 0,
+  do: () => {
+    if (Clan.get().id !== 40382) Clan.join(40382);
+    if (stashAmount($item`Greatest American Pants`)) takeStash($item`Greatest American Pants`, 1);
+  },
+};
+
+export const returnGAP: Task = {
+  name: "Return GAP",
+  completed: () => itemAmount($item`Greatest American Pants`) === 0,
+  do: () => {
+    if (Clan.get().id !== 40382) Clan.join(40382);
+    putStash($item`Greatest American Pants`, 1);
   },
 };

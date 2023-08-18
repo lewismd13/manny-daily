@@ -39,7 +39,7 @@ export default function main(command?: string): void {
     return;
   }
 
-  const tasks = getTasks([firstLife, secondLife]);
+  const tasks = getTasks([firstLife(), secondLife()]);
 
   const engine = new MannyEngine(tasks);
 
